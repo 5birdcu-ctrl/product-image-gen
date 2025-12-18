@@ -3,7 +3,9 @@ const fetch = require("node-fetch");
 const Busboy = require("busboy");
 const { buildPrompt } = require("./prompt");
 
-exports.generate = functions.https.onRequest(async (req, res) => {
+exports.generate = functions
+  .region("us-central1")
+  .https.onRequest(async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).send("Method Not Allowed");
     return;
