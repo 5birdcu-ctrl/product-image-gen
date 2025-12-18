@@ -22,7 +22,13 @@ export const generate = functions.https.onRequest((req, res) => {
 
       const falKey = process.env.FAL_KEY;
       if (!falKey) {
-        return res.status(500).json({ error: "Missing FAL_KEY" });
+        return res.status(500).json({
+  ok: false,
+  error: "fal_failed",
+  message: "Image generation failed",
+  detail: rawText
+});
+
       }
 
       console.log("Generate with nanobanana:", imageCount);
@@ -56,8 +62,10 @@ export const generate = functions.https.onRequest((req, res) => {
       const result = JSON.parse(rawText);
 
       return res.json({
-        images: result.images || []
-      });
+  ok: true,
+  images: result.images || []
+});
+
 
     } catch (err) {
       console.error("Generate failed:", err);
