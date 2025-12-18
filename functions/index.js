@@ -1,46 +1,33 @@
 const functions = require("firebase-functions");
-const Busboy = require("busboy");
 
 exports.generate = functions
   .region("us-central1")
-  .https.onRequest((req, res) => {
+  .https.onRequest(async (req, res) => {
 
-    // CORS (เรียกจากเว็บได้)
     res.set("Access-Control-Allow-Origin", "*");
     res.set("Access-Control-Allow-Methods", "POST");
 
     if (req.method !== "POST") {
-      return res.status(405).send("Method Not Allowed");
+      return res.status(405).json({ error: "Method not allowed" });
     }
 
-    console.log("Generate called");
+    try {
+      console.log("Generate called");
 
-    const busboy = Busboy({ headers: req.headers });
-    const fields = {};
+      // รับค่าจาก query / body แบบง่ายก่อน
+      const count = Number(req.query.count || 1);
 
-    busboy.on("field", (name, value) => {
-      fields[name] = value;
-    });
-
-    busboy.on("finish", async () => {
-      try {
-        const count = Number(fields.count || 1);
-
-        // 🔧 mock image URLs (เอาไว้ทดสอบก่อน)
-        const images = [];
-        for (let i = 0; i < count; i++) {
-          images.push("https://placehold.co/600x600?text=AI+Image+" + (i + 1));
-        }
-
-        console.log("Send images:", images.length);
-
-        res.json({ images });
-
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err.message });
+      const images = [];
+      for (let i = 0; i < count; i++) {
+        images.push(
+          `https://placehold.co/600x600?text=AI+Image+${i + 1}`
+        );
       }
-    });
 
-    req.pipe(busboy);
+      return res.status(200).json({ images });
+
+    } catch (err) {
+      console.error("Function error:", err);
+      return res.status(500).json({ error: err.message });
+    }
   });
