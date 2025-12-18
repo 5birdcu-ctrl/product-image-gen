@@ -4,15 +4,14 @@
   <meta charset="UTF-8" />
   <title>Product Image Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <h2>Product Image Generator</h2>
 
-<input type="file" id="image" accept="image/*" /><br>
+<input type="file" id="image" accept="image/*" /><br><br>
 
-<input type="text" id="productName" placeholder="Product name" /><br>
+<input type="text" id="productName" placeholder="Product name" /><br><br>
 
 <label>Style</label>
 <select id="style">
@@ -20,12 +19,14 @@
   <option value="impact">Impact</option>
   <option value="splash">Splash</option>
 </select>
+<br><br>
 
 <label>Tone</label>
 <select id="tone">
   <option value="premium">Premium</option>
   <option value="aggressive">Aggressive</option>
 </select>
+<br><br>
 
 <label>Images</label>
 <select id="count">
@@ -34,8 +35,11 @@
   <option value="3">3</option>
   <option value="4">4</option>
 </select>
+<br><br>
 
 <button onclick="generate()">Generate</button>
+
+<hr>
 
 <div id="result"></div>
 
