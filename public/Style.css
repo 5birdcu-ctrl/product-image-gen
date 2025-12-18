@@ -1,0 +1,21 @@
+body {
+  font-family: system-ui, sans-serif;
+  padding: 16px;
+}
+
+input, select, button {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+}
+
+button {
+  background: black;
+  color: white;
+  border: none;
+}
+
+img {
+  width: 100%;
+  margin-top: 12px;
+}
