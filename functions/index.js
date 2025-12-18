@@ -28,7 +28,9 @@ exports.generate = functions.https.onRequest(async (req, res) => {
       const prompt = buildPrompt(fields);
       const images = [];
       const count = parseInt(fields.count || "1");
-      const apiKey = process.env.DEAPI_KEY;
+      const functions = require("firebase-functions");
+const apiKey = functions.config().deapi.key;
+;
 
       for (let i = 0; i < count; i++) {
         const r = await fetch("https://api.deapi.ai/v1/images", {
