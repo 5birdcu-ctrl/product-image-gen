@@ -31,21 +31,38 @@ no text, no watermark, no logo, no human.
 `;
 
       const response = await fetch(
-        "https://api.deapi.ai/v1/openai/images/generations",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${DEAPI_KEY}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            model: "sdxl",
-            prompt: prompt,
-            n: count,
-            size: "1024x1024"
-          })
-        }
-      );
+  "https://api.deapi.ai/v1/openai/images/generations",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${DEAPI_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: "sdxl",
+      prompt: prompt,
+      n: count,
+      size: "1024x1024"
+    })
+  }
+);
+
+// 🔥 อ่านเป็น text ก่อน
+const rawText = await response.text();
+console.log("deAPI raw response:", rawText);
+
+// ถ้าไม่ใช่ JSON → โยน error
+let data;
+try {
+  data = JSON.parse(rawText);
+} catch (e) {
+  throw new Error("deAPI returned non-JSON response");
+}
+
+if (!response.ok) {
+  throw new Error(data.error?.message || "deAPI error");
+}
+
 
       const data = await response.json();
       console.log("deAPI JSON:", data);
