@@ -5,11 +5,26 @@ exports.generate = functions
   .https.onRequest(async (req, res) => {
 
     res.set("Access-Control-Allow-Origin", "*");
-    res.set("Access-Control-Allow-Methods", "POST");
+    res.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.set("Access-Control-Allow-Headers", "Content-Type");
+
+    if (req.method === "OPTIONS") {
+      return res.status(204).send("");
+    }
+
+    // 🔹 ให้ GET ใช้ทดสอบได้
+    if (req.method === "GET") {
+      return res.json({
+        message: "Generate endpoint is working. Use POST to generate images."
+      });
+    }
 
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
+
+    // ====== ส่วน generate จริงอยู่ด้านล่าง ======
+
 
     try {
       const FAL_KEY = functions.config().fal.key;
