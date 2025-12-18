@@ -1,21 +1,19 @@
 body {
-  font-family: system-ui, sans-serif;
-  padding: 16px;
+  font-family: sans-serif;
+  padding: 20px;
 }
 
 input, select, button {
-  width: 100%;
-  margin: 8px 0;
-  padding: 10px;
+  margin: 5px 0;
+  padding: 8px;
 }
 
-button {
-  background: black;
-  color: white;
-  border: none;
+#result {
+  margin-top: 20px;
 }
 
-img {
-  width: 100%;
-  margin-top: 12px;
+.thumb {
+  width: 200px;
+  margin: 10px;
+  border-radius: 8px;
 }
