@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Product Image Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<h2>Product Image Generator</h2>
+
+<input type="file" id="image" accept="image/*" /><br>
+
+<input type="text" id="productName" placeholder="Product name" /><br>
+
+<label>Style</label>
+<select id="style">
+  <option value="zoom">Zoom In</option>
+  <option value="impact">Impact</option>
+  <option value="splash">Splash</option>
+</select>
+
+<label>Tone</label>
+<select id="tone">
+  <option value="premium">Premium</option>
+  <option value="aggressive">Aggressive</option>
+</select>
+
+<label>Images</label>
+<select id="count">
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+</select>
+
+<button onclick="generate()">Generate</button>
+
+<div id="result"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
