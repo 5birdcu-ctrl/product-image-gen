@@ -1,12 +1,22 @@
-import functions from "firebase-functions";
-import cors from "cors";
-import fetch from "node-fetch";
+const { onRequest } = require("firebase-functions/v2/https");
+const cors = require("cors")({ origin: true });
+const fal = require("@fal-ai/serverless-client");
 
-const corsHandler = cors({ origin: true });
+// 🔐 ใส่ FAL_KEY ด้วย firebase config
+fal.config({
+  credentials: process.env.FAL_KEY
+});
 
-export const generate = functions.https.onRequest((req, res) => {
-  corsHandler(req, res, async () => {
+// ป้องกัน Unicode / smart quote
+function normalizePrompt(text = "") {
+  return text
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/[^\x00-\x7F]/g, "");
+}
 
+exports.generate = onRequest(async (req, res) => {
+  cors(req, res, async () => {
     if (req.method !== "POST") {
       return res.status(405).json({ error: "Method not allowed" });
     }
@@ -18,58 +28,25 @@ export const generate = functions.https.onRequest((req, res) => {
         return res.status(400).json({ error: "Missing prompt" });
       }
 
-      const imageCount = Math.min(Math.max(Number(count) || 1, 1), 4);
+      const safePrompt = normalizePrompt(prompt);
+      const numImages = Math.min(Math.max(Number(count) || 1, 1), 4);
 
-      const falKey = process.env.FAL_KEY;
-      if (!falKey) {
-        return res.status(500).json({
-  ok: false,
-  error: "fal_failed",
-  message: "Image generation failed",
-  detail: rawText
-});
-
-      }
-
-      console.log("Generate with nanobanana:", imageCount);
-
-      const falRes = await fetch(
-        "https://fal.run/fal-ai/nanobanana",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Key ${falKey}`,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            prompt,
-            num_images: imageCount,
-            image_size: "square_hd"
-          })
+      const result = await fal.subscribe("fal-ai/nanobanana", {
+        input: {
+          prompt: safePrompt,
+          num_images: numImages
         }
-      );
+      });
 
-      const rawText = await falRes.text();
-
-      if (!falRes.ok) {
-        console.error("fal.ai error:", rawText);
-        return res.status(500).json({
-          error: "fal.ai returned error",
-          detail: rawText
-        });
-      }
-
-      const result = JSON.parse(rawText);
-
-      return res.json({
-  ok: true,
-  images: result.images || []
-});
-
+      res.json({
+        ok: true,
+        images: result.images || []
+      });
 
     } catch (err) {
-      console.error("Generate failed:", err);
-      return res.status(500).json({
+      console.error("Generate error:", err);
+      res.status(500).json({
+        ok: false,
         error: err.message
       });
     }
