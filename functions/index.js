@@ -12,57 +12,44 @@ exports.generate = functions
     }
 
     try {
-      console.log("Generate with deAPI");
-
-      const DEAPI_KEY = functions.config().deapi.key;
-      if (!DEAPI_KEY) {
-        throw new Error("deAPI key not found");
-      }
+      const FAL_KEY = functions.config().fal.key;
+      if (!FAL_KEY) throw new Error("fal.ai API key missing");
 
       const count = Number(req.query.count || 1);
 
+      const body = await req.json?.() ?? req.body;
+
       const prompt = `
 A high-impact e-commerce thumbnail for a professional power tool,
-Cinematic 3D action-packed advertisement,
+cinematic 3D action-packed advertisement,
 dramatic studio lighting, splash, particles,
 modern premium industrial style,
 no text, no watermark, no logo, no human.
 `;
 
-      const response = await fetch(
-        "https://api.deapi.ai/v1/openai/images/generations",
+      const falResponse = await fetch(
+        "https://fal.run/fal-ai/flux-pro/v1.1",
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${DEAPI_KEY}`,
+            "Authorization": `Key ${FAL_KEY}`,
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            model: "sdxl",
             prompt: prompt,
-            n: count,
-            size: "1024x1024"
+            image_size: "square_hd",
+            num_images: count
           })
         }
       );
 
-      // 🔥 อ่าน response เป็น text ก่อน
-      const rawText = await response.text();
-      console.log("deAPI raw response:", rawText);
+      const data = await falResponse.json();
 
-      // 🔥 parse JSON อย่างปลอดภัย
-      let parsed;
-      try {
-        parsed = JSON.parse(rawText);
-      } catch {
-        throw new Error("deAPI returned non-JSON response");
+      if (!falResponse.ok) {
+        throw new Error(data?.error || "fal.ai error");
       }
 
-      if (!response.ok) {
-        throw new Error(parsed.error?.message || "deAPI error");
-      }
-
-      const images = parsed.data?.map(img => img.url) || [];
+      const images = data.images.map(img => img.url);
 
       return res.json({ images });
 
