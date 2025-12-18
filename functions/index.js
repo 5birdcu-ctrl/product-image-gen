@@ -24,54 +24,45 @@ exports.generate = functions
       const prompt = `
 A high-impact e-commerce thumbnail for a professional power tool,
 Cinematic 3D action-packed advertisement,
-Product shown clearly in foreground,
-dramatic lighting, splash, particles,
+dramatic studio lighting, splash, particles,
 modern premium industrial style,
 no text, no watermark, no logo, no human.
 `;
 
       const response = await fetch(
-  "https://api.deapi.ai/v1/openai/images/generations",
-  {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${DEAPI_KEY}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: "sdxl",
-      prompt: prompt,
-      n: count,
-      size: "1024x1024"
-    })
-  }
-);
+        "https://api.deapi.ai/v1/openai/images/generations",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${DEAPI_KEY}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "sdxl",
+            prompt: prompt,
+            n: count,
+            size: "1024x1024"
+          })
+        }
+      );
 
-// 🔥 อ่านเป็น text ก่อน
-const rawText = await response.text();
-console.log("deAPI raw response:", rawText);
+      // 🔥 อ่าน response เป็น text ก่อน
+      const rawText = await response.text();
+      console.log("deAPI raw response:", rawText);
 
-// ถ้าไม่ใช่ JSON → โยน error
-let data;
-try {
-  data = JSON.parse(rawText);
-} catch (e) {
-  throw new Error("deAPI returned non-JSON response");
-}
-
-if (!response.ok) {
-  throw new Error(data.error?.message || "deAPI error");
-}
-
-
-      const data = await response.json();
-      console.log("deAPI JSON:", data);
-
-      if (!response.ok) {
-        throw new Error(data.error?.message || "deAPI error");
+      // 🔥 parse JSON อย่างปลอดภัย
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText);
+      } catch {
+        throw new Error("deAPI returned non-JSON response");
       }
 
-      const images = data.data.map(img => img.url);
+      if (!response.ok) {
+        throw new Error(parsed.error?.message || "deAPI error");
+      }
+
+      const images = parsed.data?.map(img => img.url) || [];
 
       return res.json({ images });
 
