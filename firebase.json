@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "public",
+    "rewrites": [
+      { "source": "/generate", "function": "generate" }
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}
