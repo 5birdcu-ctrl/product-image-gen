@@ -1,38 +1,29 @@
-// 🔴 URL เต็มของ Cloud Function (ห้ามใช้ /generate)
 const FUNCTION_URL =
   "https://us-central1-product-image-gen-63c49.cloudfunctions.net/generate";
 
 async function generate() {
-  const fileInput = document.getElementById("image");
-
-  if (!fileInput.files.length) {
-    alert("Please select an image");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("image", fileInput.files[0]);
-  formData.append("productName", document.getElementById("productName").value);
-  formData.append("style", document.getElementById("style").value);
-  formData.append("tone", document.getElementById("tone").value);
-  formData.append("count", document.getElementById("count").value);
-
   const result = document.getElementById("result");
   result.innerHTML = "⏳ Generating...";
 
   try {
-    const res = await fetch(FUNCTION_URL, {
-      method: "POST",
-      body: formData
-    });
+    const url = FUNCTION_URL + "?count=" +
+      document.getElementById("count").value;
 
-    // 🔴 ป้องกัน JSON พัง
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
+    const res = await fetch(url, { method: "POST" });
+
+    const text = await res.text(); // 🔴 อ่านเป็น text ก่อนเสมอ
+    console.log("Raw response:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Response is not JSON");
     }
 
-    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Server error");
+    }
 
     result.innerHTML = "";
 
@@ -45,8 +36,8 @@ async function generate() {
     });
 
   } catch (err) {
-    result.innerHTML = "❌ Error";
-    alert(err.message);
     console.error(err);
+    result.innerHTML = "❌ Error: " + err.message;
+    alert(err.message);
   }
 }
