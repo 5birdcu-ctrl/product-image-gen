@@ -3,27 +3,35 @@ async function generate() {
   const count = document.getElementById("count").value;
   const result = document.getElementById("result");
 
-  result.innerHTML = "Generating...";
+  result.innerHTML = "⏳ Generating...";
 
   try {
     const res = await fetch("/generate", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ prompt, count })
     });
 
     const data = await res.json();
 
-    if (!data.images || !Array.isArray(data.images)) {
-      console.error(data);
-      result.innerHTML = "❌ Generation failed";
+    // ❌ fal.ai หรือ backend error
+    if (!data.ok) {
+      console.error("Backend error:", data);
+      result.innerHTML = `
+        ❌ Generate failed<br>
+        <small>${data.message || "Unknown error"}</small>
+      `;
       return;
     }
 
-    result.innerHTML = "";
+    // ❌ ไม่มีรูป
+    if (!Array.isArray(data.images) || data.images.length === 0) {
+      result.innerHTML = "⚠️ No images returned (check fal.ai credit)";
+      return;
+    }
 
+    // ✅ success
+    result.innerHTML = "";
     data.images.forEach(img => {
       const image = document.createElement("img");
       image.src = img.url;
@@ -33,6 +41,6 @@ async function generate() {
 
   } catch (err) {
     console.error(err);
-    result.innerHTML = "❌ Error occurred";
+    result.innerHTML = "❌ Network / Server error";
   }
 }
